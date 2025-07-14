@@ -1,0 +1,17 @@
+{% extends 'booking/base.html' %}
+{% block content %}
+<h2>Next Available Class</h2>
+
+<p><strong>{{ new_class.name }}</strong></p>
+<p>Date: {{ new_class.date }}</p>
+<p>Time: {{ new_class.time }}</p>
+<p>Instructor: {{ new_class.instructor }}</p>
+
+<form method="post" action="{% url 'rebook_final' reservation_id %}">
+    {% csrf_token %}
+    <button type="submit" name="action" value="yes">Confirm Booking</button>
+    <button type="submit" name="action" value="no">Cancel</button>
+</form>
+
+<a href="{% url 'my_reservations' %}">Back to My Reservations</a>
+{% endblock %}

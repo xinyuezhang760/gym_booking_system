@@ -1,0 +1,15 @@
+{% extends 'booking/base.html' %}
+
+{% block content %}
+<h2>Welcome to the Gym Booking System</h2>
+<p><a href="{% url 'class_list' %}">Browse Classes</a></p>
+{% if user.is_authenticated %}
+<p><a href="{% url 'logout' %}">Logout</a></p>
+{% else %}
+<p><a href="{% url 'login' %}">Login</a> | <a href="{% url 'register' %}">Register</a></p>
+{% if user.is_staff %}
+<p><a href="{% url 'admin_reservations' %}">View All Reservations (Admin)</a></p>
+{% endif %}
+
+{% endif %}
+{% endblock %}

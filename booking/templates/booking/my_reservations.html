@@ -1,0 +1,71 @@
+{% extends 'booking/base.html' %}
+{% block content %}
+{% if messages %}
+{% for message in messages %}
+<p style="color: green;">{{ message }}</p>
+{% endfor %}
+{% endif %}
+
+<h2>My Reservations</h2>
+
+{% if upcoming %}
+<h3>Upcoming Classes</h3>
+<ul>
+    {% for r in upcoming %}
+    <li>
+        <strong>{{ r.fitness_class.name }}</strong><br>
+        {{ r.fitness_class.date }} at {{ r.fitness_class.time }}<br>
+        Instructor: {{ r.fitness_class.instructor }}<br>
+        Location: {{ r.fitness_class.location }}<br>
+        <form method="post" action="{% url 'cancel_reservation' r.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Cancel</button>
+        </form>
+    </li>
+    <hr>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if ongoing %}
+<h3>Ongoing Classes</h3>
+<ul>
+    {% for r in ongoing %}
+    <li>
+        <strong>{{ r.fitness_class.name }}</strong><br>
+        {{ r.fitness_class.date }} at {{ r.fitness_class.time }}<br>
+        Instructor: {{ r.fitness_class.instructor }}<br>
+        Location: {{ r.fitness_class.location }}
+    </li>
+    <hr>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if past %}
+<h3>Past Classes</h3>
+<ul>
+    {% for r in past %}
+    <li>
+        <strong>{{ r.fitness_class.name }}</strong><br>
+        {{ r.fitness_class.date }} at {{ r.fitness_class.time }}<br>
+        Instructor: {{ r.fitness_class.instructor }}<br>
+        Location: {{ r.fitness_class.location }}<br>
+        {% if r.rating %}
+        You rated this class: {{ r.rating }} stars<br>
+        <a href="{% url 'rate_class' r.id %}"><button>Edit Rating</button></a>
+        {% else %}
+        <a href="{% url 'rate_class' r.id %}"><button>Rate Now</button></a>
+        {% endif %}
+        <a href="{% url 'rebook_confirm' r.id %}"><button type="button">Book Again</button></a>
+    </li>
+    <hr>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if not upcoming and not ongoing and not past %}
+<p>You have no reservations.</p>
+{% endif %}
+
+{% endblock %}

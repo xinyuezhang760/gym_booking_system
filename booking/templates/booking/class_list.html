@@ -1,0 +1,49 @@
+{% extends 'booking/base.html' %}
+
+{% block content %}
+<h2>All Classes</h2>
+<form method="get" style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+    <label for="id_keyword">Keyword:</label>
+    {{ form.keyword }}
+
+    <label for="id_class_type">Class Type:</label>
+    {{ form.class_type }}
+
+    <label for="id_start_date">Start Date:</label>
+    {{ form.start_date }}
+
+    <label for="id_end_date">End Date:</label>
+    {{ form.end_date }}
+
+    <button type="submit" style="margin-top: 10px;">Filter</button>
+</form>
+<hr>
+
+{% for c in classes %}
+<div>
+    <h3>{{ c.name }}</h3>
+    {% if c.image %}
+    <img src="{{ c.image.url }}" alt="{{ c.name }}" style="max-width: 300px; height: auto; border-radius: 8px;" />
+    {% endif %}
+    <p>{{ c.description }}</p>
+    <p>{{ c.date }} {{ c.time }}</p>
+    <p>{{ c.instructor }} | {{ c.capacity }} seats</p>
+    <p>Location: {{ c.location }}</p>
+    <p>Remaining Slots: {{ c.remaining_slots }} / {{ c.max_capacity }}</p>
+
+
+    {% if c.id in user_booked %}
+    <p style="color: green;"><strong>Already Booked</strong></p>
+    {% else %}
+    <form action="{% url 'book_class' c.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Book</button>
+    </form>
+    {% endif %}
+</div>
+<hr>
+{% empty %}
+<p>No classes available.</p>
+{% endfor %}
+
+{% endblock %}

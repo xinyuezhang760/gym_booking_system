@@ -1,0 +1,25 @@
+{% extends 'booking/base.html' %}
+
+{% block content %}
+<h2>All Reservations (Admin View)</h2>
+<table border="1">
+    <tr>
+        <th>User</th>
+        <th>Class</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Instructor</th>
+    </tr>
+    {% for r in reservations %}
+    <tr>
+        <td>{{ r.user.username }}</td>
+        <td>{{ r.fitness_class.name }}</td>
+        <td>{{ r.fitness_class.date }}</td>
+        <td>{{ r.fitness_class.time }}</td>
+        <td>{{ r.fitness_class.instructor }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No reservations found.</td></tr>
+    {% endfor %}
+</table>
+{% endblock %}

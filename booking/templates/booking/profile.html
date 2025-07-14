@@ -1,0 +1,48 @@
+<!-- booking/templates/booking/profile.html -->
+{% extends 'booking/base.html' %}
+{% block content %}
+<h2>Welcome, {{ user.username }}!</h2>
+
+<h3>My Fitness Goals</h3>
+<p>{{ user.userprofile.get_fitness_goal_display }}</p>
+<a href="{% url 'set_goal' %}">
+    <button>Change Goal</button>
+</a>
+
+<h3>Most Booked Courses</h3>
+<ul>
+    {% if most_booked_courses %}
+    {% for item in most_booked_courses %}
+    <li>
+        {{ item.fitness_class__name }} — {{ item.times }} time{{ item.times|pluralize }}
+    </li>
+    {% endfor %}
+    {% else %}
+    <li>You haven't booked any classes yet.</li>
+    {% endif %}
+</ul>
+
+<h3>Recommended Courses</h3>
+<ul>
+    {% for course in recommended_courses %}
+    <li style="margin-bottom: 20px;">
+        <strong style="font-size: 18px;">{{ course.name }}</strong><br>
+        <p>{{ course.description }}</p>
+
+        <p><strong>Next Start Time:</strong> {{ course.date }} {{ course.time }}</p>
+        <p>Instructor: {{ course.instructor }}</p>
+        <p>Location: {{ course.location }}</p>
+
+        {% if course.image %}
+        <img src="{{ course.image.url }}" alt="{{ course.name }}" style="max-width: 300px; height: auto; border-radius: 8px;" />
+        {% endif %}
+
+        <form method="post" action="{% url 'book_class' course.id %}">
+            {% csrf_token %}
+            <button type="submit">Book Now</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

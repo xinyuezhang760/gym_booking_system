@@ -1,0 +1,9 @@
+<h2>Rate Class: {{ reservation.fitness_class.name }}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit Rating</button>
+</form>
+
+<a href="{% url 'my_reservations' %}">Back to My Reservations</a>

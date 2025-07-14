@@ -1,0 +1,23 @@
+{% extends 'booking/base.html' %}
+{% block content %}
+<h2>All User Feedback</h2>
+
+{% if feedbacks %}
+<ul>
+    {% for r in feedbacks %}
+    <li>
+        <strong>{{ r.fitness_class.name }}</strong> <br>
+        Date: {{ r.fitness_class.date }} | Time: {{ r.fitness_class.time }} <br>
+        User: {{ r.user.username }} <br>
+        ⭐ Rating: {{ r.rating }}/5 <br>
+        💬 Feedback: {{ r.feedback|default:"(No feedback written)" }} <br>
+    </li>
+    <hr>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No feedback has been submitted yet.</p>
+{% endif %}
+
+<a href="{% url 'admin:index' %}">Back to Admin</a>
+{% endblock %}

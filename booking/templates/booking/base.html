@@ -1,0 +1,41 @@
+<body>
+<div>
+    {% if user.is_authenticated %}
+    <p>
+        Welcome, {{ user.username }} |
+        <a href="{% url 'class_list' %}">Classes</a> |
+        <a href="{% url 'my_reservations' %}">My Reservations</a> |
+        <a href="{% url 'profile' %}">Profile</a> |
+        {% if user.is_staff %}
+        <a href="{% url 'admin_reservations' %}">All Reservations</a> |
+        <p><a href="{% url 'all_feedback' %}">View All Feedback (Admin)</a></p>
+        {% endif %}
+
+
+    <a href="{% url 'logout' %}">Logout</a>
+    </p>
+    {% else %}
+    <p>
+        <a href="{% url 'login' %}">Login</a> |
+        <a href="{% url 'register' %}">Register</a>
+    </p>
+    {% endif %}
+</div>
+
+<!--  这里显示提示信息 -->
+{% if messages %}
+<ul>
+    {% for message in messages %}
+    <li style="color: {% if message.tags == 'error' or message.tags == 'warning' %}red{% else %}green{% endif %};">
+        {{ message }}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<hr>
+
+{% block content %}
+{% endblock %}
+</body>
+
