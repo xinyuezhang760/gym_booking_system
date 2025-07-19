@@ -9,18 +9,21 @@
     <button>Change Goal</button>
 </a>
 
-<h3>Most Booked Courses</h3>
-<ul>
-    {% if most_booked_courses %}
-    {% for item in most_booked_courses %}
-    <li>
-        {{ item.fitness_class__name }} — {{ item.times }} time{{ item.times|pluralize }}
-    </li>
-    {% endfor %}
-    {% else %}
-    <li>You haven't booked any classes yet.</li>
-    {% endif %}
-</ul>
+<h3>My Sports Data</h3>
+<div style="display: flex; justify-content: space-between; margin: 20px 0;">
+    <div style="border: 2px solid #333; padding: 15px; text-align: center; flex: 1; margin: 0 10px; border-radius: 8px;">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px;">Total exercise time</h4>
+        <div style="font-size: 24px; font-weight: bold;">{{ sports_data.total_exercise_time }}min</div>
+    </div>
+    <div style="border: 2px solid #333; padding: 15px; text-align: center; flex: 1; margin: 0 10px; border-radius: 8px;">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px;">Physical improvement training</h4>
+        <div style="font-size: 24px; font-weight: bold;">{{ sports_data.physical_improvement_time }}min</div>
+    </div>
+    <div style="border: 2px solid #333; padding: 15px; text-align: center; flex: 1; margin: 0 10px; border-radius: 8px;">
+        <h4 style="margin: 0 0 10px 0; font-size: 14px;">Strength training</h4>
+        <div style="font-size: 24px; font-weight: bold;">{{ sports_data.strength_training_time }}min</div>
+    </div>
+</div>
 
 <h3>Recommended Courses</h3>
 <ul>

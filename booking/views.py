@@ -261,19 +261,37 @@ def profile(request):
 
     recommended = FitnessClass.objects.filter(q_objects).distinct()[:5]  # 最多推荐5门课
 
-    # 统计当前用户预约过哪些课程，并统计次数
-    most_booked = (
-        Reservation.objects
-        .filter(user=request.user)
-        .values('fitness_class__name')
-        .annotate(times=Count('id'))
-        .order_by('-times')
-    )
+    # 统计用户的运动数据
+    user_reservations = Reservation.objects.filter(user=request.user).select_related('fitness_class')
+    
+    # 计算总运动时间
+    total_exercise_time = sum(reservation.fitness_class.duration for reservation in user_reservations)
+    
+    # 按课程类型统计时间
+    physical_improvement_time = 0
+    strength_training_time = 0
+    
+    for reservation in user_reservations:
+        duration = reservation.fitness_class.duration
+        class_type = reservation.fitness_class.class_type
+        
+        if class_type in ['weight_loss', 'flexibility', 'general_fitness']:
+            # 体能改善训练包括：减重、柔韧性、综合健身
+            physical_improvement_time += duration
+        elif class_type == 'muscle_gain':
+            # 力量训练包括：增肌
+            strength_training_time += duration
+
+    sports_data = {
+        'total_exercise_time': total_exercise_time,
+        'physical_improvement_time': physical_improvement_time,
+        'strength_training_time': strength_training_time,
+    }
 
     return render(request, 'booking/profile.html', {
         'recommended_courses': recommended,
         'fitness_goal': goal.capitalize(),
-        'most_booked_courses': most_booked,
+        'sports_data': sports_data,
     })
 
 
