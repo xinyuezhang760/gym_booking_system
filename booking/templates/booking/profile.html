@@ -25,27 +25,28 @@
     </div>
 </div>
 
-<h3>Recommended Courses</h3>
-<ul>
-    {% for course in recommended_courses %}
-    <li style="margin-bottom: 20px;">
-        <strong style="font-size: 18px;">{{ course.name }}</strong><br>
-        <p>{{ course.description }}</p>
-
-        <p><strong>Next Start Time:</strong> {{ course.date }} {{ course.time }}</p>
-        <p>Instructor: {{ course.instructor }}</p>
-        <p>Location: {{ course.location }}</p>
-
+<h3>AI Recommended Courses</h3>
+<div style="margin-bottom: 16px; font-size: 1.1em; color: #333;">
+    <strong>Recommendation Reason: </strong>{{ ai_summary }}
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px;">
+    {% for course in ai_courses %}
+    <div style="border: 2px solid #333; border-radius: 10px; padding: 18px; width: 350px; background: #fafbfc; box-shadow: 2px 2px 8px #eee;">
+        <h4 style="margin-bottom: 8px; font-size: 1.2em;">{{ course.name }}</h4>
         {% if course.image %}
-        <img src="{{ course.image.url }}" alt="{{ course.name }}" style="max-width: 300px; height: auto; border-radius: 8px;" />
+        <img src="{{ course.image.url }}" alt="{{ course.name }}" style="max-width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" />
         {% endif %}
-
+        <p><strong>Description:</strong> {{ course.description }}</p>
+        <p><strong>Date:</strong> {{ course.date|date:'Y-m-d' }}</p>
+        <p><strong>Time:</strong> {{ course.time|time:'H:i' }}</p>
+        <p><strong>Instructor:</strong> {{ course.instructor }}</p>
+        <p><strong>Location:</strong> {{ course.location }}</p>
+        <p><strong>Available Slots:</strong> {{ course.remaining_slots }}</p>
         <form method="post" action="{% url 'book_class' course.id %}">
             {% csrf_token %}
-            <button type="submit">Book Now</button>
+            <button type="submit" style="margin-top: 10px; padding: 8px 24px; font-size: 1em; border-radius: 8px; border: 2px solid #333; background: #fff; cursor: pointer;">Book</button>
         </form>
-    </li>
+    </div>
     {% endfor %}
-</ul>
-
+</div>
 {% endblock %}

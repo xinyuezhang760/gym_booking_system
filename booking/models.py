@@ -49,11 +49,16 @@ class Reservation(models.Model):
 class UserProfile(models.Model):
     FITNESS_GOALS = [
         ('weight_loss', 'Weight Loss'),
-        ('muscle_gain', 'Muscle Gain'),
+        ('weight_gain', 'Weight Gain'),
         ('flexibility', 'Flexibility'),
+        ('muscle_gain', 'Muscle Gain'),
+        ('stress_relief', 'Stress Relief'),
+        ('post_injury_reha', 'Post-injury Reha'),
+        ('endurance_training', 'Endurance Training'),
+        ('improve_sleep', 'Improve Sleep'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    fitness_goal = models.CharField(max_length=20, choices=FITNESS_GOALS, default='weight_loss')
+    fitness_goal = models.CharField(max_length=30, choices=FITNESS_GOALS, default='weight_loss')
 
     def __str__(self):
         return f"{self.user.username}'s profile"

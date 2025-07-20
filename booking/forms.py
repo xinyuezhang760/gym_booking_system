@@ -15,12 +15,8 @@ class RegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'password1', 'password2', 'fitness_goal']
+        fields = ['username', 'email', 'password1', 'password2', 'fitness_goal']
 
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password1', 'password2']
 
 class SetGoalForm(forms.ModelForm):
     class Meta:
@@ -30,11 +26,7 @@ class SetGoalForm(forms.ModelForm):
             'fitness_goal': 'Your Fitness Goal',
         }
         widgets = {
-            'fitness_goal': forms.Select(choices=[
-                ('Weight Loss', 'Weight Loss'),
-                ('Muscle Gain', 'Muscle Gain'),
-                ('Flexibility', 'Flexibility'),
-            ])
+            'fitness_goal': forms.RadioSelect(choices=UserProfile.FITNESS_GOALS)
         }
 
 class LoginForm(AuthenticationForm):

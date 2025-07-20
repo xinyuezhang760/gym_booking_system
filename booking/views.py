@@ -20,6 +20,10 @@ from .forms import SetGoalForm
 from django.db.models import Count
 from .forms import CourseFilterForm
 from django.utils.timezone import make_aware
+import requests
+
+MOONSHOT_API_KEY = "sk-MybQw7Kvh5yruZO6jJuReOhv8pi645W4WWffEpYxMsZUA85I"
+MOONSHOT_API_URL = "https://api.moonshot.cn/v1/chat/completions"
 
 def home(request):
     return render(request, 'booking/home.html')
@@ -242,55 +246,96 @@ GOAL_KEYWORDS = {
 
 @login_required
 def profile(request):
-    # 安全地获取或创建用户资料
     profile, created = UserProfile.objects.get_or_create(user=request.user)
-    # 如果还没设置目标，跳转去设置目标页面
     if not profile.fitness_goal:
         return redirect('set_goal')
 
-    goal = profile.fitness_goal.lower()
-    keywords = GOAL_KEYWORDS.get(goal, [])
-    q_objects = Q()
-
-    for kw in keywords:
-        q_objects |= (
-                Q(name__icontains=kw) |
-                Q(description__icontains=kw) |
-                Q(instructor__icontains=kw)
-        )
-
-    recommended = FitnessClass.objects.filter(q_objects).distinct()[:5]  # 最多推荐5门课
-
-    # 统计用户的运动数据
     user_reservations = Reservation.objects.filter(user=request.user).select_related('fitness_class')
-    
-    # 计算总运动时间
     total_exercise_time = sum(reservation.fitness_class.duration for reservation in user_reservations)
-    
-    # 按课程类型统计时间
     physical_improvement_time = 0
     strength_training_time = 0
-    
     for reservation in user_reservations:
         duration = reservation.fitness_class.duration
         class_type = reservation.fitness_class.class_type
-        
         if class_type in ['weight_loss', 'flexibility', 'general_fitness']:
-            # 体能改善训练包括：减重、柔韧性、综合健身
             physical_improvement_time += duration
         elif class_type == 'muscle_gain':
-            # 力量训练包括：增肌
             strength_training_time += duration
-
     sports_data = {
         'total_exercise_time': total_exercise_time,
         'physical_improvement_time': physical_improvement_time,
         'strength_training_time': strength_training_time,
     }
 
+    fitness_goal = profile.get_fitness_goal_display()
+    booking_history = [
+        f"{r.fitness_class.name} ({r.fitness_class.class_type}, {r.fitness_class.duration}min)"
+        for r in user_reservations
+    ]
+    all_classes = FitnessClass.objects.all()
+    class_list = [
+        f"{c.name} ({c.class_type}, {c.duration}min, {c.description})"
+        for c in all_classes
+    ]
+    prompt = f"""
+You are a fitness class recommendation AI. 
+User's fitness goal: {fitness_goal}
+User's total exercise time: {total_exercise_time}min
+Physical improvement training: {physical_improvement_time}min
+Strength training: {strength_training_time}min
+User's booking history: {booking_history}
+Available classes: {class_list}
+Please recommend 3-5 classes for the user, and give a short summary (in English) explaining why you recommend them based on the user's goal, data, and history. Output format:
+Summary: ...\nRecommended Classes (only class names, one per line):\nClassName1\nClassName2\nClassName3\n...\n"""
+    ai_summary = ""
+    ai_course_names = []
+    ai_courses = []
+    try:
+        headers = {
+            "Authorization": f"Bearer {MOONSHOT_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": "moonshot-v1-8k",
+            "messages": [
+                {"role": "system", "content": "You are a helpful fitness class recommendation assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.7
+        }
+        response = requests.post(MOONSHOT_API_URL, headers=headers, json=data, timeout=20)
+        if response.status_code == 200:
+            result = response.json()
+            content = result["choices"][0]["message"]["content"]
+            # 解析AI返回内容
+            if "Summary:" in content and "Recommended Classes" in content:
+                ai_summary = content.split("Summary:")[1].split("Recommended Classes")[0].strip()
+                ai_course_names = [line.strip() for line in content.split("Recommended Classes")[-1].split("\n") if line.strip() and not line.strip().startswith("Summary")]
+            else:
+                ai_summary = content
+        else:
+            ai_summary = "The AI recommendation service is temporarily unavailable. Please try again later."
+    except Exception as e:
+        ai_summary = f"AI recommendation error: {e}"
+
+    # 根据AI返回的课程名查找详细信息
+    for cname in ai_course_names:
+        # 支持AI返回带序号或点号的情况
+        cname_clean = cname
+        if ". " in cname:
+            cname_clean = cname.split(". ", 1)[1]
+        elif "." in cname and cname[1] == ".":
+            cname_clean = cname[2:].strip()
+        # 只取课程名部分（去掉括号等）
+        cname_clean = cname_clean.split("(")[0].strip()
+        course = FitnessClass.objects.filter(name__icontains=cname_clean).order_by('date').first()
+        if course:
+            ai_courses.append(course)
+
     return render(request, 'booking/profile.html', {
-        'recommended_courses': recommended,
-        'fitness_goal': goal.capitalize(),
+        'ai_summary': ai_summary,
+        'ai_courses': ai_courses,
+        'fitness_goal': fitness_goal,
         'sports_data': sports_data,
     })
 
