@@ -19,6 +19,12 @@ urlpatterns = [
     path('rebook_final/<int:reservation_id>/', views.rebook_final, name='rebook_final'),
     path('profile/', views.profile, name='profile'),
     path('set_goal/', views.set_goal, name='set_goal'),
+    path('instructor/dashboard/', views.instructor_dashboard, name='instructor_dashboard'),
+    path('instructor/post_class_summary/', views.instructor_post_class_summary, name='instructor_post_class_summary'),
+    path('instructor/generate_summary/', views.generate_post_class_summary, name='generate_post_class_summary'),
+    path('instructor/submit_summary/', views.submit_post_class_summary, name='submit_post_class_summary'),
+    path('instructor/', views.instructor_home, name='instructor_home'),
+    path('instructor/upload_video/<int:class_id>/', views.instructor_video_upload, name='instructor_video_upload'),
 
 
 

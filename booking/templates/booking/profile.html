@@ -1,52 +1,191 @@
 <!-- booking/templates/booking/profile.html -->
 {% extends 'booking/base.html' %}
+
 {% block content %}
-<h2>Welcome, {{ user.username }}!</h2>
+<div class="row">
+    <!-- Profile Header -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body text-center p-5">
+                <div class="mb-4">
+                    <i class="bi bi-person-circle text-primary" style="font-size: 4rem;"></i>
+                </div>
+                <h1 class="h2 mb-2">Welcome, {{ user.username }}!</h1>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-envelope me-2"></i>{{ user.email }}
+                </p>
+                <div class="mt-3">
+                    <a href="{% url 'set_goal' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-2"></i>Change Fitness Goal
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<h3>My Fitness Goals</h3>
-<p>{{ user.userprofile.get_fitness_goal_display }}</p>
-<a href="{% url 'set_goal' %}">
-    <button>Change Goal</button>
-</a>
+    <!-- Left Column: My Sports Data + Recent Activity -->
+    <div class="col-lg-6 mb-4">
+        <!-- My Sports Data -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>My Sports Data
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="text-center p-3 bg-light rounded">
+                            <i class="bi bi-clock text-primary" style="font-size: 2rem;"></i>
+                            <h4 class="mt-2 mb-1">{{ total_exercise_time }}</h4>
+                            <small class="text-muted">Total Exercise Time</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center p-3 bg-light rounded">
+                            <i class="bi bi-heart-pulse text-success" style="font-size: 2rem;"></i>
+                            <h4 class="mt-2 mb-1">{{ physical_improvement_time }}</h4>
+                            <small class="text-muted">Physical Improvement Training</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center p-3 bg-light rounded">
+                            <i class="bi bi-lightning text-warning" style="font-size: 2rem;"></i>
+                            <h4 class="mt-2 mb-1">{{ strength_training_time }}</h4>
+                            <small class="text-muted">Strength Training</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-center p-3 bg-light rounded">
+                            <i class="bi bi-trophy text-info" style="font-size: 2rem;"></i>
+                            <h4 class="mt-2 mb-1">{{ user.userprofile.fitness_goal|default:"Not Set" }}</h4>
+                            <small class="text-muted">Fitness Goal</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<h3>My Sports Data</h3>
-<div style="display: flex; justify-content: space-between; margin: 20px 0;">
-    <div style="border: 2px solid #333; padding: 15px; text-align: center; flex: 1; margin: 0 10px; border-radius: 8px;">
-        <h4 style="margin: 0 0 10px 0; font-size: 14px;">Total exercise time</h4>
-        <div style="font-size: 24px; font-weight: bold;">{{ sports_data.total_exercise_time }}min</div>
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-activity me-2"></i>Recent Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center p-3 bg-light rounded">
+                            <i class="bi bi-calendar-check text-success me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h6 class="mb-1">Total Bookings</h6>
+                                <p class="mb-0 text-muted">You've booked {{ total_bookings }} classes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center p-3 bg-light rounded">
+                            <i class="bi bi-star text-warning me-3" style="font-size: 1.5rem;"></i>
+                            <div>
+                                <h6 class="mb-1">Average Rating</h6>
+                                <p class="mb-0 text-muted">Your average rating: {{ avg_rating|default:"N/A" }}/5</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div style="border: 2px solid #333; padding: 15px; text-align: center; flex: 1; margin: 0 10px; border-radius: 8px;">
-        <h4 style="margin: 0 0 10px 0; font-size: 14px;">Physical improvement training</h4>
-        <div style="font-size: 24px; font-weight: bold;">{{ sports_data.physical_improvement_time }}min</div>
-    </div>
-    <div style="border: 2px solid #333; padding: 15px; text-align: center; flex: 1; margin: 0 10px; border-radius: 8px;">
-        <h4 style="margin: 0 0 10px 0; font-size: 14px;">Strength training</h4>
-        <div style="font-size: 24px; font-weight: bold;">{{ sports_data.strength_training_time }}min</div>
-    </div>
-</div>
 
-<h3>AI Recommended Courses</h3>
-<div style="margin-bottom: 16px; font-size: 1.1em; color: #333;">
-    <strong>Recommendation Reason: </strong>{{ ai_summary }}
-</div>
-<div style="display: flex; flex-wrap: wrap; gap: 24px;">
-    {% for course in ai_courses %}
-    <div style="border: 2px solid #333; border-radius: 10px; padding: 18px; width: 350px; background: #fafbfc; box-shadow: 2px 2px 8px #eee;">
-        <h4 style="margin-bottom: 8px; font-size: 1.2em;">{{ course.name }}</h4>
-        {% if course.image %}
-        <img src="{{ course.image.url }}" alt="{{ course.name }}" style="max-width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" />
-        {% endif %}
-        <p><strong>Description:</strong> {{ course.description }}</p>
-        <p><strong>Date:</strong> {{ course.date|date:'Y-m-d' }}</p>
-        <p><strong>Time:</strong> {{ course.time|time:'H:i' }}</p>
-        <p><strong>Instructor:</strong> {{ course.instructor }}</p>
-        <p><strong>Location:</strong> {{ course.location }}</p>
-        <p><strong>Available Slots:</strong> {{ course.remaining_slots }}</p>
-        <form method="post" action="{% url 'book_class' course.id %}">
-            {% csrf_token %}
-            <button type="submit" style="margin-top: 10px; padding: 8px 24px; font-size: 1em; border-radius: 8px; border: 2px solid #333; background: #fff; cursor: pointer;">Book</button>
-        </form>
+    <!-- Right Column: AI Recommended Courses -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-robot me-2"></i>AI Recommended Courses
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if ai_summary %}
+                <div class="mb-3">
+                    <h6 class="text-muted mb-2">
+                        <i class="bi bi-lightbulb me-1"></i>AI Recommendation
+                    </h6>
+                    <p class="mb-0">{{ ai_summary }}</p>
+                </div>
+                {% endif %}
+
+                {% if ai_courses %}
+                <div class="row g-3">
+                    {% for course in ai_courses %}
+                    <div class="col-12">
+                        <div class="card border-success">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-0">{{ course.name }}</h6>
+                                    <span class="badge bg-success">{{ course.class_type }}</span>
+                                </div>
+                                <p class="card-text small text-muted mb-2">{{ course.description }}</p>
+                                <div class="row g-2 mb-2">
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar me-1"></i>{{ course.date }}
+                                        </small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock me-1"></i>{{ course.time }}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <i class="bi bi-person-workspace me-1"></i>{{ course.instructor }}
+                                        </small>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">
+                                            <i class="bi bi-geo-alt me-1"></i>{{ course.location }}
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                {% if course.image %}
+                                <img src="{{ course.image.url }}" class="img-fluid rounded mb-2" alt="{{ course.name }}" style="max-height: 100px; object-fit: cover;">
+                                {% endif %}
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-{% if course.remaining_slots > 5 %}success{% elif course.remaining_slots > 0 %}warning{% else %}danger{% endif %}">
+                                        <i class="bi bi-people me-1"></i>{{ course.remaining_slots }} slots
+                                    </span>
+                                    {% if course.remaining_slots > 0 %}
+                                    <form method="post" action="{% url 'book_class' course.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="bi bi-bookmark-plus me-1"></i>Book
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <button class="btn btn-secondary btn-sm" disabled>
+                                        <i class="bi bi-x-circle me-1"></i>Full
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-robot text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2">No AI recommendations available yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    {% endfor %}
 </div>
 {% endblock %}

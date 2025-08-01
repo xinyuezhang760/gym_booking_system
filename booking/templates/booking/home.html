@@ -1,15 +1,61 @@
 {% extends 'booking/base.html' %}
 
 {% block content %}
-<h2>Welcome to the Gym Booking System</h2>
-<p><a href="{% url 'class_list' %}">Browse Classes</a></p>
-{% if user.is_authenticated %}
-<p><a href="{% url 'logout' %}">Logout</a></p>
-{% else %}
-<p><a href="{% url 'login' %}">Login</a> | <a href="{% url 'register' %}">Register</a></p>
-{% if user.is_staff %}
-<p><a href="{% url 'admin_reservations' %}">View All Reservations (Admin)</a></p>
-{% endif %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body text-center p-5">
+                <h1 class="display-4 mb-4">
+                    <i class="bi bi-heart-pulse-fill text-primary me-3"></i>
+                    Welcome to Gym Master
+                </h1>
+                <p class="lead mb-4">
+                    Your ultimate fitness booking platform. Discover amazing classes, book your sessions, and achieve your fitness goals with our professional instructors.
+                </p>
+                
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="bi bi-calendar-check text-primary" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3">Easy Booking</h5>
+                            <p class="text-muted">Book your favorite classes with just a few clicks</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="bi bi-person-workspace text-success" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3">Expert Instructors</h5>
+                            <p class="text-muted">Learn from certified fitness professionals</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="bi bi-graph-up text-info" style="font-size: 3rem;"></i>
+                            <h5 class="mt-3">Track Progress</h5>
+                            <p class="text-muted">Monitor your fitness journey and achievements</p>
+                        </div>
+                    </div>
+                </div>
 
-{% endif %}
+                <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'class_list' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-calendar-event me-2"></i>Browse Classes
+                    </a>
+                    <a href="{% url 'my_reservations' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-bookmark-star me-2"></i>My Reservations
+                    </a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Get Started
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-primary btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Join Now
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

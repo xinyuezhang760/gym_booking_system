@@ -1,9 +1,111 @@
-<h2>Rate Class: {{ reservation.fitness_class.name }}</h2>
+{% extends 'booking/base.html' %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit Rating</button>
-</form>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-star text-warning" style="font-size: 3rem;"></i>
+                    <h2 class="mt-3">Rate Class</h2>
+                    <h5 class="text-primary mb-0">{{ reservation.fitness_class.name }}</h5>
+                </div>
 
-<a href="{% url 'my_reservations' %}">Back to My Reservations</a>
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="id_rating" class="form-label">
+                            <i class="bi bi-star-fill me-2"></i>Rate this class (1-5):
+                        </label>
+                        <div class="d-flex align-items-center">
+                            <input type="number" name="rating" id="id_rating" class="form-control me-3" 
+                                   min="1" max="5" value="{{ form.rating.value|default:'4' }}" required>
+                            <div class="text-warning fs-4">
+                                {% for i in "12345" %}
+                                <i class="bi bi-star-fill" id="star-{{ forloop.counter }}"></i>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if form.rating.errors %}
+                        <div class="text-danger small mt-1">{{ form.rating.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_feedback" class="form-label">
+                            <i class="bi bi-chat-quote me-2"></i>Feedback (optional):
+                        </label>
+                        <textarea name="feedback" id="id_feedback" class="form-control" rows="4" 
+                                  placeholder="Share your experience with this class...">{{ form.feedback.value|default:'' }}</textarea>
+                        {% if form.feedback.errors %}
+                        <div class="text-danger small mt-1">{{ form.feedback.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        {% for error in form.non_field_errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="bi bi-star me-2"></i>Submit Rating
+                        </button>
+                        <a href="{% url 'my_reservations' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to My Reservations
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingInput = document.getElementById('id_rating');
+    const stars = document.querySelectorAll('[id^="star-"]');
+    
+    function updateStars(value) {
+        stars.forEach((star, index) => {
+            if (index < value) {
+                star.classList.add('text-warning');
+            } else {
+                star.classList.remove('text-warning');
+            }
+        });
+    }
+    
+    // Initialize stars based on current value
+    updateStars(parseInt(ratingInput.value));
+    
+    // Update stars when input changes
+    ratingInput.addEventListener('input', function() {
+        updateStars(parseInt(this.value) || 0);
+    });
+    
+    // Click on stars to set rating
+    stars.forEach((star, index) => {
+        star.addEventListener('click', function() {
+            const value = index + 1;
+            ratingInput.value = value;
+            updateStars(value);
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            updateStars(index + 1);
+        });
+    });
+    
+    // Reset stars when mouse leaves the star container
+    document.querySelector('.text-warning').parentElement.addEventListener('mouseleave', function() {
+        updateStars(parseInt(ratingInput.value) || 0);
+    });
+});
+</script>
+{% endblock %}

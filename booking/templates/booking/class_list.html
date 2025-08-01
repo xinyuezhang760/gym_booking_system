@@ -1,49 +1,175 @@
 {% extends 'booking/base.html' %}
 
 {% block content %}
-<h2>All Classes</h2>
-<form method="get" style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
-    <label for="id_keyword">Keyword:</label>
-    {{ form.keyword }}
-
-    <label for="id_class_type">Class Type:</label>
-    {{ form.class_type }}
-
-    <label for="id_start_date">Start Date:</label>
-    {{ form.start_date }}
-
-    <label for="id_end_date">End Date:</label>
-    {{ form.end_date }}
-
-    <button type="submit" style="margin-top: 10px;">Filter</button>
-</form>
-<hr>
-
-{% for c in classes %}
-<div>
-    <h3>{{ c.name }}</h3>
-    {% if c.image %}
-    <img src="{{ c.image.url }}" alt="{{ c.name }}" style="max-width: 300px; height: auto; border-radius: 8px;" />
-    {% endif %}
-    <p>{{ c.description }}</p>
-    <p>{{ c.date }} {{ c.time }}</p>
-    <p>{{ c.instructor }} | {{ c.capacity }} seats</p>
-    <p>Location: {{ c.location }}</p>
-    <p>Remaining Slots: {{ c.remaining_slots }} / {{ c.max_capacity }}</p>
-
-
-    {% if c.id in user_booked %}
-    <p style="color: green;"><strong>Already Booked</strong></p>
-    {% else %}
-    <form action="{% url 'book_class' c.id %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Book</button>
-    </form>
-    {% endif %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h2 mb-0">
+            <i class="bi bi-calendar-event text-primary me-3"></i>
+            Available Classes
+        </h1>
+    </div>
 </div>
-<hr>
-{% empty %}
-<p>No classes available.</p>
-{% endfor %}
 
+<!-- Filter Section - Always Visible -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="keyword" class="form-label">Search</label>
+                <input type="text" name="keyword" id="keyword" class="form-control" placeholder="Search classes, instructors..." value="{{ form.keyword.value|default:'' }}">
+            </div>
+            <div class="col-md-3">
+                <label for="class_type" class="form-label">Class Type</label>
+                <select name="class_type" id="class_type" class="form-select">
+                    <option value="">All Types</option>
+                    <option value="muscle_gain" {% if form.class_type.value == 'muscle_gain' %}selected{% endif %}>Muscle Gain</option>
+                    <option value="flexibility" {% if form.class_type.value == 'flexibility' %}selected{% endif %}>Flexibility</option>
+                    <option value="weight_loss" {% if form.class_type.value == 'weight_loss' %}selected{% endif %}>Weight Loss</option>
+                    <option value="general_fitness" {% if form.class_type.value == 'general_fitness' %}selected{% endif %}>General Fitness</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="start_date" class="form-label">From Date</label>
+                <input type="date" name="start_date" id="start_date" class="form-control" value="{{ form.start_date.value|default:'' }}">
+            </div>
+            <div class="col-md-2">
+                <label for="end_date" class="form-label">To Date</label>
+                <input type="date" name="end_date" id="end_date" class="form-control" value="{{ form.end_date.value|default:'' }}">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search me-1"></i>Filter
+                </button>
+                <a href="{% url 'class_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Classes Grid -->
+<div class="row g-4">
+    {% for class in classes %}
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 {% if class.is_expired %}border-danger{% endif %}">
+            {% if class.image %}
+            <img src="{{ class.image.url }}" class="card-img-top" alt="{{ class.name }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+            </div>
+            {% endif %}
+            
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <h5 class="card-title mb-0">{{ class.name }}</h5>
+                        {% if class.is_expired %}
+                        <span class="badge bg-danger">
+                            <i class="bi bi-clock-history me-1"></i>EXPIRED
+                        </span>
+                        {% endif %}
+                    </div>
+                    <span class="badge bg-{% if class.class_type == 'muscle_gain' %}success{% elif class.class_type == 'flexibility' %}info{% elif class.class_type == 'weight_loss' %}warning{% else %}primary{% endif %}">
+                        {{ class.get_class_type_display }}
+                    </span>
+                </div>
+                
+                <p class="card-text text-muted mb-3">{{ class.description }}</p>
+                
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">
+                            <i class="bi bi-calendar me-1"></i>Date
+                        </small>
+                        <div class="fw-bold">{{ class.date|date:"M d, Y" }}</div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i>Time
+                        </small>
+                        <div class="fw-bold">{{ class.time }}</div>
+                    </div>
+                </div>
+                
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">
+                            <i class="bi bi-person me-1"></i>Instructor
+                        </small>
+                        <div class="fw-bold">{{ class.instructor }}</div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">
+                            <i class="bi bi-geo-alt me-1"></i>Location
+                        </small>
+                        <div class="fw-bold">{{ class.location|default:"TBD" }}</div>
+                    </div>
+                </div>
+                
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">
+                            <i class="bi bi-clock-history me-1"></i>Duration
+                        </small>
+                        <div class="fw-bold">{{ class.duration }} min</div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">
+                            <i class="bi bi-people me-1"></i>Available
+                        </small>
+                        <div class="fw-bold">{{ class.remaining_slots }}/{{ class.max_capacity }}</div>
+                    </div>
+                </div>
+
+                {% if class.intro_video %}
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <i class="bi bi-camera-video me-1"></i>Intro Video Available
+                    </small>
+                </div>
+                {% endif %}
+
+                {% if class.historical_summary %}
+                <div class="mb-3">
+                    <small class="text-muted">
+                        <i class="bi bi-chat-quote me-1"></i>Previous Class Summary
+                    </small>
+                    <div class="small text-muted">{{ class.historical_summary|truncatewords:20 }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="mt-auto">
+                    {% if class.is_expired %}
+                    <button class="btn btn-secondary w-100" disabled>
+                        <i class="bi bi-clock-history me-1"></i>Class Expired
+                    </button>
+                    {% elif class.id in user_booked %}
+                    <button class="btn btn-success w-100" disabled>
+                        <i class="bi bi-check-circle me-1"></i>Already Booked
+                    </button>
+                    {% elif class.remaining_slots <= 0 %}
+                    <button class="btn btn-danger w-100" disabled>
+                        <i class="bi bi-x-circle me-1"></i>Fully Booked
+                    </button>
+                    {% else %}
+                    <a href="{% url 'book_class' class.id %}" class="btn btn-primary w-100">
+                        <i class="bi bi-calendar-plus me-1"></i>Book Class
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 text-muted">No Classes Found</h4>
+            <p class="text-muted">Try adjusting your filters or check back later for new classes.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

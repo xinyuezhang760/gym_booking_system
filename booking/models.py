@@ -12,8 +12,10 @@ class FitnessClass(models.Model):
     time = models.TimeField()
     duration = models.IntegerField(help_text="Duration in minutes")
     instructor = models.CharField(max_length=100)
-    max_capacity = models.PositiveIntegerField()  # 不加 default，管理员必须设置
+    max_capacity = models.PositiveIntegerField()  # No default, admin must set
     image = models.ImageField(upload_to='class_images/', blank=True, null=True)
+    post_class_summary = models.TextField(blank=True, null=True)
+    intro_video = models.FileField(upload_to='intro_videos/', blank=True, null=True)
     CLASS_TYPES = [
         ('muscle_gain', 'Muscle Gain'),
         ('flexibility', 'Flexibility'),
@@ -59,6 +61,7 @@ class UserProfile(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     fitness_goal = models.CharField(max_length=30, choices=FITNESS_GOALS, default='weight_loss')
+    is_instructor = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username}'s profile"

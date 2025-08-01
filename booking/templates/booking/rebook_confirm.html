@@ -1,17 +1,85 @@
 {% extends 'booking/base.html' %}
+
 {% block content %}
-<h2>Next Available Class</h2>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-calendar-check me-2"></i>Book Again - Next Available Class
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 class="text-primary">{{ new_class.name }}</h5>
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar me-1"></i>Date
+                                </small>
+                                <div class="fw-bold">{{ new_class.date }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="bi bi-clock me-1"></i>Time
+                                </small>
+                                <div class="fw-bold">{{ new_class.time }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="bi bi-person-workspace me-1"></i>Instructor
+                                </small>
+                                <div class="fw-bold">{{ new_class.instructor }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="bi bi-geo-alt me-1"></i>Location
+                                </small>
+                                <div class="fw-bold">{{ new_class.location }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <i class="bi bi-clock-history me-1"></i>Duration
+                                </small>
+                                <div class="fw-bold">{{ new_class.duration }} minutes</div>
+                            </div>
+                        </div>
+                    </div>
 
-<p><strong>{{ new_class.name }}</strong></p>
-<p>Date: {{ new_class.date }}</p>
-<p>Time: {{ new_class.time }}</p>
-<p>Instructor: {{ new_class.instructor }}</p>
+                    {% if new_class.image %}
+                    <div class="text-center mb-4">
+                        <img src="{{ new_class.image.url }}" class="img-fluid rounded" alt="{{ new_class.name }}" style="max-height: 200px; object-fit: cover;">
+                    </div>
+                    {% endif %}
 
-<form method="post" action="{% url 'rebook_final' reservation_id %}">
-    {% csrf_token %}
-    <button type="submit" name="action" value="yes">Confirm Booking</button>
-    <button type="submit" name="action" value="no">Cancel</button>
-</form>
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        This is the next available class with the same instructor and course name.
+                    </div>
 
-<a href="{% url 'my_reservations' %}">Back to My Reservations</a>
+                    <form method="post" action="{% url 'rebook_final' reservation_id %}">
+                        {% csrf_token %}
+                        <div class="d-flex gap-3 justify-content-center">
+                            <button type="submit" name="action" value="yes" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle me-2"></i>Confirm Booking
+                            </button>
+                            <button type="submit" name="action" value="no" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'my_reservations' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to My Reservations
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
