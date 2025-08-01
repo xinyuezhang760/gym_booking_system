@@ -37,7 +37,6 @@ DEBUG = False
 ALLOWED_HOSTS = ['xinyuezhang66.pythonanywhere.com']
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-
 # Application definition
 
 INSTALLED_APPS = [

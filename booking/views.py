@@ -40,7 +40,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             if user is not None:  # Add null check
-                login(request, user)
+            login(request, user)
                 # Role-based redirection
                 if hasattr(user, 'userprofile') and user.userprofile.is_instructor:
                     return redirect('instructor_home')
@@ -121,7 +121,7 @@ def class_list(request):
 def book_class(request, class_id):
     if request.user.is_authenticated:
         fitness_class = get_object_or_404(FitnessClass, pk=class_id)
-        
+
         # Check if class has expired
         class_datetime = datetime.combine(fitness_class.date, fitness_class.time)
         if class_datetime < datetime.now():
@@ -148,8 +148,8 @@ def book_class(request, class_id):
                 # Check maximum capacity
         current_count = Reservation.objects.filter(fitness_class=fitness_class).count()
         if current_count >= fitness_class.max_capacity:
-            messages.error(request, 'This class is fully booked.')
-            return redirect('class_list')
+         messages.error(request, 'This class is fully booked.')
+         return redirect('class_list')
 
         # Create reservation record
         Reservation.objects.create(user=request.user, fitness_class=fitness_class)
